@@ -1,0 +1,9 @@
+{
+  "name": "leiterschleife-kommutator",
+  "private": true,
+  "description": "3D-Simulation: Leiterschleife mit Kommutator im homogenen Magnetfeld eines Hufeisenmagneten",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}
