@@ -130,20 +130,46 @@ commCore.position.z = CZ;
 rod([A, 0, HL], [CR * 0.8, 0, CZ - CL / 2], W * 0.8, mat.copper, commutator);
 rod([-A, 0, HL], [-CR * 0.8, 0, CZ - CL / 2], W * 0.8, mat.copper, commutator);
 
-// Schleifringe: Ring A hinten, Ring B vorne
-const RING_Z = { A: CZ - 0.75, B: CZ + 0.75 };
-for (const [key, material] of [['A', mat.halfA], ['B', mat.halfB]]) {
-  const ring = addMesh(new THREE.CylinderGeometry(CR, CR, 1.1, 32), material, sliprings);
-  ring.rotation.x = Math.PI / 2;
-  ring.position.z = RING_Z[key];
+// Schleifringe: Ring A hinten, Ring B vorne, mit deutlichem Abstand auf einer Isoliernabe.
+// Jede Leiterseite ist über eine Zuleitung in der Farbe ihres Rings mit genau diesem Ring verbunden;
+// die Zuleitung von B läuft isoliert durch die Öffnung von Ring A hindurch.
+const RING_W = 0.8, RING_Z = { A: CZ - 1.25, B: CZ + 1.25 };
+const HUB_R = CR * 0.35, HOLE_R = CR * 0.74, PASS_R = (HUB_R + HOLE_R) / 2, LUG_R = CR * 0.87;
+function ringGeometry(inner) {
+  const shape = new THREE.Shape().absarc(0, 0, CR, 0, 2 * Math.PI);
+  shape.holes.push(new THREE.Path().absarc(0, 0, inner, 0, 2 * Math.PI, true));
+  return new THREE.ExtrudeGeometry(shape, { depth: RING_W, bevelEnabled: false, curveSegments: 48 });
 }
-const ringCore = addMesh(new THREE.CylinderGeometry(CR * 0.55, CR * 0.55, CL + 0.4, 20), mat.plastic, sliprings);
+for (const [key, material, inner] of [['A', mat.halfA, HOLE_R], ['B', mat.halfB, HUB_R]]) {
+  const ring = addMesh(ringGeometry(inner), material, sliprings);
+  ring.position.z = RING_Z[key] - RING_W / 2;
+}
+const ringCore = addMesh(new THREE.CylinderGeometry(HUB_R, HUB_R, RING_Z.B - RING_Z.A + RING_W + 0.6, 20), mat.plastic, sliprings);
 ringCore.rotation.x = Math.PI / 2;
-ringCore.position.z = CZ;
-rod([A, 0, HL], [CR * 0.8, 0, RING_Z.A - 0.55], W * 0.8, mat.copper, sliprings);
-rod([-A, 0, HL], [-CR * 0.2, 0.6, RING_Z.B - 0.55], W * 0.8, mat.copper, sliprings);
+ringCore.position.z = CZ - 0.3;
+// Isolierstege halten Ring A auf der Nabe (nicht dort, wo die Zuleitung B durchläuft)
+for (const deg of [0, 120, 240]) {
+  const a = THREE.MathUtils.degToRad(deg);
+  rod([HUB_R * Math.cos(a), HUB_R * Math.sin(a), RING_Z.A], [HOLE_R * Math.cos(a), HOLE_R * Math.sin(a), RING_Z.A], 0.12, mat.plastic, sliprings);
+}
+// Zuleitung A: Leiterseite A → Rückseite von Ring A
+const leadW = W * 0.6;
+const backA = RING_Z.A - RING_W / 2, backB = RING_Z.B - RING_W / 2;
+rod([A, 0, HL], [LUG_R, 0, backA - 0.5], leadW, mat.halfA, sliprings);
+rod([LUG_R, 0, backA - 0.5], [LUG_R, 0, backA], leadW, mat.halfA, sliprings);
+// Zuleitung B: Leiterseite B → durch Ring A hindurch → Rückseite von Ring B (in der Lücke sichtbar)
+const pathB = [[-A, 0, HL], [-PASS_R, 0, backA - 0.6], [-PASS_R, 0, CZ], [-LUG_R, 0, backB - 0.2], [-LUG_R, 0, backB]];
+for (let k = 1; k < pathB.length; k++) rod(pathB[k - 1], pathB[k], leadW, mat.halfB, sliprings);
+for (const p of pathB.slice(1, -1)) addMesh(new THREE.SphereGeometry(leadW, 12, 8), mat.halfB, sliprings).position.set(...p);
+addMesh(new THREE.SphereGeometry(leadW, 12, 8), mat.halfA, sliprings).position.set(LUG_R, 0, backA - 0.5);
+// Lötstellen auf den Ringen
+for (const [x, z] of [[LUG_R, backA], [-LUG_R, backB]]) {
+  const lug = addMesh(new THREE.CylinderGeometry(leadW * 1.7, leadW * 1.7, 0.16, 14), mat.steel, sliprings);
+  lug.rotation.x = Math.PI / 2;
+  lug.position.set(x, 0, z - 0.08);
+}
 
-// ---------------- Bürsten (feststehend) mit Haltern und Zuleitungen
+// ---------------- Bürsten (feststehend) mit Haltern; die Kabel zum Netzgerät stehen in netzgeraet.js
 const brushes = {};
 for (const side of [-1, 1]) {
   const group = new THREE.Group();
@@ -156,10 +182,9 @@ for (const side of [-1, 1]) {
   rod([side * (CR + 1.2), 0, 0], [side * (CR + 1.4), 0, 0], 0.15, mat.steel, group);
   brushes[side] = group;
 }
-// Zuleitungen vom Fuß der Halter nach vorne (zur Schaltskizze)
-const leads = {};
-for (const side of [-1, 1]) {
-  leads[side] = addMesh(new THREE.BoxGeometry(0.5, 0.5, 1), mat.cableRed, scene);
+/** Fußpunkt des Bürstenhalters auf dem Tisch (Anschluss für das Kabel), side −1 links, +1 rechts */
+export function brushFoot(side) {
+  return new THREE.Vector3(side * (CR + 1.4), GEO.tableY, brushes[side].position.z);
 }
 
 // ---------------- Feldlinien zwischen den Polen
@@ -208,14 +233,6 @@ export function syncApparatus(dt) {
   // Bürsten: Kommutator → beide auf derselben Höhe; Schleifringe → links Ring B, rechts Ring A
   brushes[-1].position.z = ring ? RING_Z.B : CZ;
   brushes[1].position.z = ring ? RING_Z.A : CZ;
-  // Zuleitung: Pluspol rot, Minuspol blau (Polung)
-  for (const side of [-1, 1]) {
-    const plus = side === -state.polarity;           // polarity +1: links Plus
-    leads[side].material = plus ? mat.cableRed : mat.cableBlue;
-    const z = brushes[side].position.z;
-    leads[side].scale.z = 17 - z;
-    leads[side].position.set(side * (CR + 1.4), GEO.tableY + 0.25, (z + 17) / 2);
-  }
 
   // Feldlinien: Richtung von N nach S
   fieldLines.visible = state.showField;

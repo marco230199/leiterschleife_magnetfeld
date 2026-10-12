@@ -21,6 +21,12 @@ export const mat = {
   halfB: new THREE.MeshStandardMaterial({ color: COLOR_B, metalness: 0.5, roughness: 0.35 }),
   cableRed: new THREE.MeshStandardMaterial({ color: 0xc62828, roughness: 0.5 }),
   cableBlue: new THREE.MeshStandardMaterial({ color: 0x1e5bc6, roughness: 0.5 }),
+  // Netzgerät
+  housing: new THREE.MeshStandardMaterial({ color: 0xe9ecef, roughness: 0.5 }),
+  panel: new THREE.MeshStandardMaterial({ color: 0x3b4450, roughness: 0.55 }),
+  knob: new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4 }),
+  ledOff: new THREE.MeshStandardMaterial({ color: 0x1f4a24, roughness: 0.4 }),
+  ledOn: new THREE.MeshStandardMaterial({ color: 0x39ff5a, emissive: 0x39ff5a, emissiveIntensity: 1.5 }),
   field: new THREE.MeshBasicMaterial({ color: 0x1e88e5, transparent: true, opacity: 0.45, depthWrite: false }),
   current: new THREE.MeshBasicMaterial({ color: 0xffb300 }),
   force: new THREE.MeshBasicMaterial({ color: 0xd32f2f }),

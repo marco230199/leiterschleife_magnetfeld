@@ -6,8 +6,11 @@ Leiterseiten Kräfte, und die Schleife dreht sich. Der **Kommutator** (Stromwend
 jeder halben Umdrehung um, sodass sich die Schleife dauerhaft weiterdreht – das Prinzip des
 Gleichstrommotors.
 
-Die Simulation hat bewusst **Simulationscharakter**: keine Netzgeräte oder Messgeräte, stattdessen
-Regler und einblendbare Hilfen. Der Stromkreis ist als **Schaltskizze** dargestellt.
+Die Simulation hat bewusst **Simulationscharakter**: Bedient wird über Regler und einblendbare Hilfen,
+der Stromkreis ist zusätzlich als **Schaltskizze** dargestellt. Damit der Versuchsaufbau vollständig ist,
+steht im 3D-Bild ein **Netzgerät**: Es zeigt den tatsächlich fließenden Strom (beim Kommutator 0 A,
+solange die Bürsten auf der Lücke liegen), der Knopf folgt der eingestellten Stromstärke, die Lampe
+leuchtet bei eingeschaltetem Strom, und „Polung umkehren“ steckt die Kabel an den Buchsen um.
 
 ## Funktionen
 
@@ -66,6 +69,7 @@ leiterschleife-kommutator/
 │   ├── physik.js       # Ströme, Kräfte, Drehmoment, Bewegung (ohne 3D, testbar)
 │   ├── szene.js        # Renderer, Kamera, Licht, Tisch
 │   ├── aufbau.js       # Magnet, Schleife, Kommutator, Bürsten, Feldlinien, Strom, Kräfte
+│   ├── netzgeraet.js   # Netzgerät mit Stromanzeige und Kabeln zu den Bürsten
 │   ├── schaltskizze.js # 2D-Schaltskizze im Blick entlang der Achse
 │   ├── bedienfeld.js   # Regler, Knöpfe, Statusanzeigen
 │   ├── hilfen.js       # Hilfsfunktionen

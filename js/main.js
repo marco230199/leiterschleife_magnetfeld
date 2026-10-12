@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { renderer, scene, camera, controls, setView } from './szene.js';
 import { syncApparatus } from './aufbau.js';
+import { syncSupply } from './netzgeraet.js';
 import { drawSketch } from './schaltskizze.js';
 import { initUi, refresh, updateLive } from './bedienfeld.js';
 import { state } from './state.js';
@@ -22,6 +23,7 @@ renderer.setAnimationLoop(() => {
   const factor = state.slowMotion ? 0.2 : 1;
   if (state.playing) step(state, dt * factor);
   syncApparatus(state.playing ? dt * factor : 0);
+  syncSupply();
   if (state.showSketch) drawSketch();
   textTimer += dt;
   if (textTimer > 0.1) { updateLive(); textTimer = 0; }   // Texte nicht in jedem Bild neu setzen

@@ -30,7 +30,7 @@ controls.minDistance = 10;
 controls.maxDistance = 120;
 
 const VIEWS = {
-  start: { position: [26, 20, 40], target: [0, -1, 1] },
+  start: { position: [32, 21, 42], target: [4.5, -2, 0] },   // Aufbau und Netzgerät
   front: { position: [0, 2, 46], target: [0, 0, 0] },        // Blick entlang der Achse wie in der Schaltskizze
 };
 export function setView(name = 'start') {
