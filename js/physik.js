@@ -14,9 +14,11 @@ import { MODEL } from './config.js';
  * Die linke Bürste ist bei polarity = +1 der Pluspol. Liegen die Bürsten auf der Lücke
  * (Schleife fast senkrecht), ist der Stromkreis unterbrochen.
  * Schleifringe: Seite A ist immer mit der rechten Bürste verbunden.
- * @returns {{ a: number, b: number, gap: boolean, rightBrush: 'A'|'B'|null }}
+ * Abgenommen (commutatorOn = false): Die Bürsten berühren nichts, es fließt kein Strom.
+ * @returns {{ a: number, b: number, gap: boolean, rightBrush: 'A'|'B'|null, removed?: boolean }}
  */
 export function sideCurrents(phi, s) {
+  if (s.commutatorOn === false) return { a: 0, b: 0, gap: false, rightBrush: null, removed: true };
   const on = s.powerOn && s.current > 0;
   if (s.mode === 'schleifringe') {
     const i = on ? s.polarity * s.current : 0;

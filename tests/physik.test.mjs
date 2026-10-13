@@ -74,3 +74,15 @@ test('Kommutator: stromlose Phase (Lücke 40°, Bürste 20° → je ±10° um di
   assert.equal(sideCurrents(deg(85), s).gap, true, '5° vor der Senkrechten: kein Strom');
   assert.equal(sideCurrents(deg(75), s).gap, false, '15° vor der Senkrechten: Strom fließt');
 });
+
+test('Kommutator bzw. Schleifringe abgenommen: kein Strom, keine Kraft, keine Drehung', () => {
+  for (const mode of ['kommutator', 'schleifringe']) {
+    const s = { ...base(), mode, commutatorOn: false };
+    const i = sideCurrents(deg(30), s);
+    assert.equal(i.a, 0);
+    assert.equal(i.b, 0);
+    assert.equal(i.removed, true);
+    step(s, 1);
+    assert.equal(s.omega, 0);
+  }
+});

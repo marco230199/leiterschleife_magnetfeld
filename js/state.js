@@ -9,6 +9,7 @@ export const state = {
   polarity: 1,                    // +1: Pluspol an der linken Bürste
   magnet: 1,                      // +1: Nordpol links (Feld zeigt nach rechts), −1: umgedreht
   mode: 'kommutator',             // 'kommutator' oder 'schleifringe'
+  commutatorOn: true,             // Kommutator bzw. Schleifringe auf der Welle (sonst abgenommen)
   playing: true,
   slowMotion: false,
   // Bewegung der Schleife: Winkel der Leiterseite A gegen die Waagrechte (gegen den

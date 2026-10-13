@@ -143,8 +143,10 @@ export function drawSketch() {
     currentOnLine(ctx, { x: rightX, y: up ? cy : yb }, { x: rightX, y: up ? yb : cy });
   }
 
-  // Kommutator bzw. Schleifringe
-  if (!ring) {
+  // Kommutator bzw. Schleifringe (nur wenn aufgesetzt)
+  if (state.commutatorOn === false) {
+    // abgenommen: nur die Bürsten bleiben
+  } else if (!ring) {
     const gap = COMMUTATOR.gapHalf;
     for (const [center, color] of [[ang, COLOR_A], [ang + Math.PI, COLOR_B]]) {
       ctx.strokeStyle = color;
@@ -228,6 +230,9 @@ export function drawSketch() {
 /** Kurzer Text zum Kontakt der Bürsten */
 export function sketchStatus() {
   const i = sideCurrents(state.phi, state);
+  if (i.removed) {
+    return `${state.mode === 'kommutator' ? 'Kommutator' : 'Schleifringe'} abgenommen: Die Bürsten berühren nichts, der Stromkreis ist offen.`;
+  }
   if (!state.powerOn) return 'Schalter offen: Es fließt kein Strom.';
   if (state.current === 0) return 'Die Stromstärke ist null.';
   if (state.mode === 'schleifringe') {

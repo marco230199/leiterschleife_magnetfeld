@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { renderer, scene, camera, controls, setView } from './szene.js';
 import { syncApparatus } from './aufbau.js';
 import { syncSupply } from './netzgeraet.js';
+import { updateParts, busy } from './abnehmen.js';
 import { drawSketch } from './schaltskizze.js';
 import { initUi, refresh, updateLive } from './bedienfeld.js';
 import { state } from './state.js';
@@ -21,7 +22,8 @@ let textTimer = 0;
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.05);
   const factor = state.slowMotion ? 0.2 : 1;
-  if (state.playing) step(state, dt * factor);
+  updateParts(dt);
+  if (state.playing && !busy()) step(state, dt * factor);   // während des Abnehmens/Aufsetzens ruht die Physik
   syncApparatus(state.playing ? dt * factor : 0);
   syncSupply();
   if (state.showSketch) drawSketch();

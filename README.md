@@ -19,6 +19,9 @@ leuchtet bei eingeschaltetem Strom, und „Polung umkehren“ steckt die Kabel a
 - **Stromzuführung:** Kommutator oder **„Ohne Kommutator“** (Schleifringe) zum Vergleich. Mit Schleifringen wird der
   Strom nie umgepolt: Die Schleife pendelt nur hin und her und bleibt senkrecht stehen. So wird
   sichtbar, wozu der Kommutator nötig ist.
+- **Kommutator bzw. Schleifringe abnehmen:** Das Teil wird von der Welle gezogen und auf den Holzsockel
+  neben den Südpol gelegt. Bürsten und vorderer Lagerbock bleiben aufgeklappt, damit die Leiterschleife
+  frei zu sehen ist; es fließt kein Strom. Beim Aufsetzen schließt sich der Aufbau wieder.
 - **Bewegung:** Anhalten/Weiter, Zeitlupe, Anstoßen (z. B. aus dem Totpunkt), Zurücksetzen.
   Angehalten lässt sich die Schleife mit dem Regler „Drehwinkel“ in jede Stellung drehen, um das
   Umpolen Schritt für Schritt anzusehen.
@@ -69,6 +72,7 @@ leiterschleife-kommutator/
 │   ├── physik.js       # Ströme, Kräfte, Drehmoment, Bewegung (ohne 3D, testbar)
 │   ├── szene.js        # Renderer, Kamera, Licht, Tisch
 │   ├── aufbau.js       # Magnet, Schleife, Kommutator, Bürsten, Feldlinien, Strom, Kräfte
+│   ├── abnehmen.js     # Kommutator bzw. Schleifringe abnehmen und aufsetzen (Animation)
 │   ├── netzgeraet.js   # Netzgerät mit Stromanzeige und Kabeln zu den Bürsten
 │   ├── schaltskizze.js # 2D-Schaltskizze im Blick entlang der Achse
 │   ├── bedienfeld.js   # Regler, Knöpfe, Statusanzeigen

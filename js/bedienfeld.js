@@ -5,6 +5,7 @@ import { RANGES, START_ANGLE, PUSH_SPEED } from './config.js';
 import { state } from './state.js';
 import { sideCurrents } from './physik.js';
 import { formatNumber } from './hilfen.js';
+import { busy, removePart, attachPart } from './abnehmen.js';
 import { sketchStatus } from './schaltskizze.js';
 
 const $ = id => document.getElementById(id);
@@ -21,14 +22,7 @@ export function refresh() {
   $('magnetStatus').textContent = state.magnet > 0
     ? 'Nordpol links: Das Feld zeigt nach rechts.'
     : 'Nordpol rechts: Das Feld zeigt nach links.';
-  for (const button of document.querySelectorAll('[data-mode]')) {
-    const active = button.dataset.mode === state.mode;
-    button.classList.toggle('active', active);
-    button.setAttribute('aria-pressed', String(active));
-  }
-  $('modeStatus').textContent = state.mode === 'kommutator'
-    ? 'Der Kommutator (Stromwender) polt den Strom in der Schleife bei jeder halben Umdrehung um.'
-    : 'Ohne Kommutator (Schleifringe): Der Strom in der Schleife behält immer dieselbe Richtung.';
+  refreshPart();
   const play = $('playBtn');
   play.textContent = state.playing ? 'Anhalten' : 'Weiter';
   play.classList.toggle('on', state.playing);
@@ -51,15 +45,46 @@ export function updateLive() {
   $('sketchStatus').textContent = sketchStatus();
   $('motionStatus').textContent = motionText();
   $('motionStatus').classList.toggle('warn', motionWarn());
+  refreshPart();
+}
+
+/** Stromzuführung: Umschalten, Abnehmen/Aufsetzen (auch während des Umbaus aktualisiert) */
+function refreshPart() {
+  const moving = busy();
+  const name = state.mode === 'kommutator' ? 'Kommutator' : 'Schleifringe';
+  for (const button of document.querySelectorAll('[data-mode]')) {
+    const active = button.dataset.mode === state.mode;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+    button.disabled = moving || !state.commutatorOn;
+  }
+  const comm = $('commBtn');
+  comm.textContent = `${name} ${state.commutatorOn ? 'abnehmen' : 'aufsetzen'}`;
+  comm.disabled = moving;
+  let text;
+  if (moving) text = 'Umbau läuft …';
+  else if (!state.commutatorOn) {
+    text = `${name} abgenommen: Die Bürsten berühren nichts, in der Schleife fließt kein Strom. So ist die Leiterschleife gut zu sehen. Zum Umschalten erst wieder aufsetzen.`;
+  } else {
+    text = state.mode === 'kommutator'
+      ? 'Der Kommutator (Stromwender) polt den Strom in der Schleife bei jeder halben Umdrehung um.'
+      : 'Ohne Kommutator (Schleifringe): Der Strom in der Schleife behält immer dieselbe Richtung.';
+  }
+  if ($('modeStatus').textContent !== text) $('modeStatus').textContent = text;
 }
 
 function motionWarn() {
-  return state.playing && state.powerOn && state.current > 0 && state.omega === 0 && sideCurrents(state.phi, state).a === 0;
+  return state.playing && state.powerOn && state.current > 0 && state.omega === 0 && !busy()
+    && sideCurrents(state.phi, state).gap;
 }
 
 function motionText() {
   const w = state.omega;
+  if (busy()) return 'Umbau läuft …';
   if (!state.playing) return 'Angehalten: Mit dem Regler „Drehwinkel“ kannst du die Schleife in jede Stellung drehen.';
+  if (!state.commutatorOn && Math.abs(w) < 0.05) {
+    return `${state.mode === 'kommutator' ? 'Kommutator' : 'Schleifringe'} abgenommen: Es fließt kein Strom, die Schleife steht still.`;
+  }
   if (motionWarn()) {
     return 'Totpunkt: Die Bürsten liegen auf den Lücken, es fließt kein Strom. Stoße die Schleife an!';
   }
@@ -98,6 +123,10 @@ export function initUi() {
   for (const button of document.querySelectorAll('[data-mode]')) {
     button.addEventListener('click', () => { state.mode = button.dataset.mode; refresh(); });
   }
+  $('commBtn').addEventListener('click', () => {
+    if (state.commutatorOn) removePart(); else attachPart();
+    refresh();
+  });
   $('playBtn').addEventListener('click', () => { state.playing = !state.playing; refresh(); });
   $('slowCheck').addEventListener('change', e => { state.slowMotion = e.target.checked; });
   $('pushBtn').addEventListener('click', () => {

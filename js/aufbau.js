@@ -81,11 +81,15 @@ function syncMagnet() {
 }
 
 // ---------------- Lager und Achse
+// Der vordere Lagerbock lässt sich zur Seite schieben (zum Abnehmen von Kommutator bzw. Schleifringen)
+export const frontBearing = new THREE.Group();
+scene.add(frontBearing);
 for (const z of [GEO.magnetBack + 2, GEO.commZ + 3.2]) {
   const bottom = z > GEO.magnetFront ? GEO.tableY : BASE_TOP;
-  const post = addMesh(new THREE.BoxGeometry(1.2, -bottom - 0.6, 1.2), mat.plastic, scene);
+  const parent = z > GEO.magnetFront ? frontBearing : scene;
+  const post = addMesh(new THREE.BoxGeometry(1.2, -bottom - 0.6, 1.2), mat.plastic, parent);
   post.position.set(0, (bottom - 0.6) / 2, z);
-  const eye = addMesh(new THREE.TorusGeometry(0.45, 0.18, 10, 24), mat.plastic, scene);
+  const eye = addMesh(new THREE.TorusGeometry(0.45, 0.18, 10, 24), mat.plastic, parent);
   eye.position.set(0, 0, z);
 }
 
@@ -105,9 +109,12 @@ for (const [x, material] of [[A, mat.halfA], [-A, mat.halfB]]) {
   ring.position.set(x, 0, HL - 1.2);
 }
 
-const commutator = new THREE.Group();
-const sliprings = new THREE.Group();
-rotor.add(commutator, sliprings);
+// Kommutator und Schleifringe lassen sich abnehmen; ihre Zuleitungen bleiben an der Schleife
+export const commutator = new THREE.Group();
+export const sliprings = new THREE.Group();
+const commLeads = new THREE.Group();
+const ringLeads = new THREE.Group();
+rotor.add(commutator, sliprings, commLeads, ringLeads);
 const CZ = GEO.commZ, CR = GEO.commRadius, CL = GEO.commLength;
 
 // Kommutator: zwei Halbschalen; Hälfte A liegt bei phi = 0 rechts (Richtung +x)
@@ -127,8 +134,8 @@ const commCore = addMesh(new THREE.CylinderGeometry(CR * 0.55, CR * 0.55, CL, 20
 commCore.rotation.x = Math.PI / 2;
 commCore.position.z = CZ;
 // Zuleitungen von den Leiterseiten zu den Hälften
-rod([A, 0, HL], [CR * 0.8, 0, CZ - CL / 2], W * 0.8, mat.copper, commutator);
-rod([-A, 0, HL], [-CR * 0.8, 0, CZ - CL / 2], W * 0.8, mat.copper, commutator);
+rod([A, 0, HL], [CR * 0.8, 0, CZ - CL / 2], W * 0.8, mat.copper, commLeads);
+rod([-A, 0, HL], [-CR * 0.8, 0, CZ - CL / 2], W * 0.8, mat.copper, commLeads);
 
 // Schleifringe: Ring A hinten, Ring B vorne, mit deutlichem Abstand auf einer Isoliernabe.
 // Jede Leiterseite ist über eine Zuleitung in der Farbe ihres Rings mit genau diesem Ring verbunden;
@@ -155,13 +162,13 @@ for (const deg of [0, 120, 240]) {
 // Zuleitung A: Leiterseite A → Rückseite von Ring A
 const leadW = W * 0.6;
 const backA = RING_Z.A - RING_W / 2, backB = RING_Z.B - RING_W / 2;
-rod([A, 0, HL], [LUG_R, 0, backA - 0.5], leadW, mat.halfA, sliprings);
-rod([LUG_R, 0, backA - 0.5], [LUG_R, 0, backA], leadW, mat.halfA, sliprings);
+rod([A, 0, HL], [LUG_R, 0, backA - 0.5], leadW, mat.halfA, ringLeads);
+rod([LUG_R, 0, backA - 0.5], [LUG_R, 0, backA], leadW, mat.halfA, ringLeads);
 // Zuleitung B: Leiterseite B → durch Ring A hindurch → Rückseite von Ring B (in der Lücke sichtbar)
 const pathB = [[-A, 0, HL], [-PASS_R, 0, backA - 0.6], [-PASS_R, 0, CZ], [-LUG_R, 0, backB - 0.2], [-LUG_R, 0, backB]];
-for (let k = 1; k < pathB.length; k++) rod(pathB[k - 1], pathB[k], leadW, mat.halfB, sliprings);
-for (const p of pathB.slice(1, -1)) addMesh(new THREE.SphereGeometry(leadW, 12, 8), mat.halfB, sliprings).position.set(...p);
-addMesh(new THREE.SphereGeometry(leadW, 12, 8), mat.halfA, sliprings).position.set(LUG_R, 0, backA - 0.5);
+for (let k = 1; k < pathB.length; k++) rod(pathB[k - 1], pathB[k], leadW, mat.halfB, ringLeads);
+for (const p of pathB.slice(1, -1)) addMesh(new THREE.SphereGeometry(leadW, 12, 8), mat.halfB, ringLeads).position.set(...p);
+addMesh(new THREE.SphereGeometry(leadW, 12, 8), mat.halfA, ringLeads).position.set(LUG_R, 0, backA - 0.5);
 // Lötstellen auf den Ringen
 for (const [x, z] of [[LUG_R, backA], [-LUG_R, backB]]) {
   const lug = addMesh(new THREE.CylinderGeometry(leadW * 1.7, leadW * 1.7, 0.16, 14), mat.steel, sliprings);
@@ -170,16 +177,20 @@ for (const [x, z] of [[LUG_R, backA], [-LUG_R, backB]]) {
 }
 
 // ---------------- Bürsten (feststehend) mit Haltern; die Kabel zum Netzgerät stehen in netzgeraet.js
-const brushes = {};
+// Drehpunkt jeder Gruppe ist der Fuß des Halters auf dem Tisch (dort hängt auch das Kabel):
+// rotation.z = −side · Winkel schwenkt die Bürste nach außen.
+export const brushes = {};
 for (const side of [-1, 1]) {
   const group = new THREE.Group();
+  group.position.set(side * (CR + 1.4), GEO.tableY, 0);
   scene.add(group);
+  const top = -GEO.tableY;                                   // Höhe der Achse über dem Fuß
   // Bürste so breit wie der Winkel COMMUTATOR.brushHalf am Kommutator
   const brush = addMesh(new THREE.BoxGeometry(1.2, 2 * CR * Math.tan(COMMUTATOR.brushHalf), 0.9), mat.carbon, group);
-  brush.position.set(side * (CR + 0.6), 0, 0);
-  const holder = addMesh(new THREE.BoxGeometry(0.3, -GEO.tableY, 0.3), mat.steel, group);
-  holder.position.set(side * (CR + 1.4), GEO.tableY / 2, 0);
-  rod([side * (CR + 1.2), 0, 0], [side * (CR + 1.4), 0, 0], 0.15, mat.steel, group);
+  brush.position.set(-side * 0.8, top, 0);
+  const holder = addMesh(new THREE.BoxGeometry(0.3, top, 0.3), mat.steel, group);
+  holder.position.set(0, top / 2, 0);
+  rod([-side * 0.2, top, 0], [0, top, 0], 0.15, mat.steel, group);
   brushes[side] = group;
 }
 /** Fußpunkt des Bürstenhalters auf dem Tisch (Anschluss für das Kabel), side −1 links, +1 rechts */
@@ -227,8 +238,8 @@ export function syncApparatus(dt) {
   syncMagnet();
   rotor.rotation.z = state.phi;
   const ring = state.mode === 'schleifringe';
-  commutator.visible = !ring;
-  sliprings.visible = ring;
+  commutator.visible = commLeads.visible = !ring;
+  sliprings.visible = ringLeads.visible = ring;
 
   // Bürsten: Kommutator → beide auf derselben Höhe; Schleifringe → links Ring B, rechts Ring A
   brushes[-1].position.z = ring ? RING_Z.B : CZ;
