@@ -90,6 +90,11 @@ export function drawSketch() {
 
   // Bürsten, Leitungen, Schalter, Batterie
   const brushX = rc + 3.5 * u;
+  const bw = 4 * u, bh = 2 * rc * Math.tan(COMMUTATOR.brushHalf);   // Bürste so breit wie im Modell
+  // Außenkanten der Bürsten: Hier beginnen die Leitungen. Ohne Kommutator berührt die linke Bürste
+  // den äußeren Ring (B), die rechte den inneren Ring (A).
+  const leftEnd = ring ? cx - rc - 6.5 * u : cx - rc - 3.5 * u;
+  const rightEnd = ring ? cx + rc + 1.75 * u : cx + rc + 3.5 * u;
   const yb = cy + 41 * u;                           // Höhe der Batterie: knapp unter den Kraftpfeilen
   const leftX = 18 * u, rightX = W - 18 * u;
   const flowing = i.a !== 0;
@@ -99,10 +104,10 @@ export function drawSketch() {
   // linke Leitung mit Schalter
   const swY = cy + 29 * u;
   ctx.beginPath();
-  ctx.moveTo(cx - brushX - 3 * u, cy); ctx.lineTo(leftX, cy); ctx.lineTo(leftX, swY - 5 * u);
+  ctx.moveTo(leftEnd, cy); ctx.lineTo(leftX, cy); ctx.lineTo(leftX, swY - 5 * u);
   ctx.moveTo(leftX, swY + 5 * u); ctx.lineTo(leftX, yb); ctx.lineTo(cx - 6 * u, yb);
   // rechte Leitung
-  ctx.moveTo(cx + brushX + 3 * u, cy); ctx.lineTo(rightX, cy); ctx.lineTo(rightX, yb); ctx.lineTo(cx + 6 * u, yb);
+  ctx.moveTo(rightEnd, cy); ctx.lineTo(rightX, cy); ctx.lineTo(rightX, yb); ctx.lineTo(cx + 6 * u, yb);
   ctx.stroke();
   // Schalter
   ctx.fillStyle = INK;
@@ -149,11 +154,16 @@ export function drawSketch() {
     }
     ctx.lineCap = 'round';
   } else {
-    for (const [r, color] of [[rc - 3.5 * u, COLOR_A], [rc + 1.5 * u, COLOR_B]]) {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3.5 * u;
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
-    }
+    // innerer Ring A ganz, äußerer Ring B rechts mit Aussparung: Dort reicht die rechte Bürste
+    // an ihm vorbei zum inneren Ring (in Wirklichkeit liegen die Ringe hintereinander auf der Achse).
+    const rB = rc + 1.5 * u, notch = Math.asin((bh / 2 + 1.5 * u) / rB);
+    ctx.lineWidth = 3.5 * u;
+    ctx.lineCap = 'butt';
+    ctx.strokeStyle = COLOR_A;
+    ctx.beginPath(); ctx.arc(cx, cy, rc - 3.5 * u, 0, 2 * Math.PI); ctx.stroke();
+    ctx.strokeStyle = COLOR_B;
+    ctx.beginPath(); ctx.arc(cx, cy, rB, notch, 2 * Math.PI - notch); ctx.stroke();
+    ctx.lineCap = 'round';
   }
   // Verbindung Leiterseite → Kommutatorhälfte bzw. Ring
   ctx.lineWidth = 1.5;
@@ -168,17 +178,13 @@ export function drawSketch() {
   ctx.beginPath(); ctx.arc(cx, cy, 1.6 * u, 0, 2 * Math.PI); ctx.fill();
   // Bürsten
   ctx.fillStyle = '#333';
-  const bw = 4 * u, bh = 2 * rc * Math.tan(COMMUTATOR.brushHalf);   // Bürste so breit wie im Modell
   if (!ring) {
     ctx.fillRect(cx - rc - bw + 0.5 * u, cy - bh / 2, bw, bh);
     ctx.fillRect(cx + rc - 0.5 * u, cy - bh / 2, bw, bh);
   } else {
     // links berührt den äußeren Ring (B), rechts den inneren Ring (A)
-    ctx.fillRect(cx - rc - 3 * u - bw + 0.5 * u, cy - bh / 2, bw, bh);
-    ctx.fillRect(cx + rc + 3 * u - 0.5 * u, cy - bh / 2, bw, bh);
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(cx + rc + 3 * u, cy); ctx.lineTo(cx + rc - 3.5 * u + 1.75 * u, cy); ctx.stroke();
+    ctx.fillRect(leftEnd, cy - bh / 2, bw, bh);
+    ctx.fillRect(rightEnd - bw, cy - bh / 2, bw, bh);
   }
   // Lücke unter einer Bürste markieren
   if (i.gap && state.powerOn && state.showCurrent) {
@@ -225,7 +231,7 @@ export function sketchStatus() {
   if (!state.powerOn) return 'Schalter offen: Es fließt kein Strom.';
   if (state.current === 0) return 'Die Stromstärke ist null.';
   if (state.mode === 'schleifringe') {
-    return 'Schleifringe: Jede Bürste berührt immer denselben Ring. Der Strom in der Schleife wird nie umgepolt.';
+    return 'Ohne Kommutator: Jede Bürste berührt immer denselben Schleifring. Der Strom in der Schleife wird nie umgepolt.';
   }
   if (i.gap) return 'Die Bürsten liegen auf den Lücken: Der Stromkreis ist kurz unterbrochen. Die Schleife dreht durch ihren Schwung weiter.';
   const left = i.rightBrush === 'A' ? 'türkisen' : 'goldenen';

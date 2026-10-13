@@ -16,7 +16,7 @@ leuchtet bei eingeschaltetem Strom, und „Polung umkehren“ steckt die Kabel a
 
 - **Stromkreis:** Strom ein/aus (Schalter in der Schaltskizze), Stromstärke 0–5 A, Polung umkehren
 - **Hufeisenmagnet umdrehen** (N ↔ S)
-- **Stromzuführung:** Kommutator oder **Schleifringe** zum Vergleich. Mit Schleifringen wird der
+- **Stromzuführung:** Kommutator oder **„Ohne Kommutator“** (Schleifringe) zum Vergleich. Mit Schleifringen wird der
   Strom nie umgepolt: Die Schleife pendelt nur hin und her und bleibt senkrecht stehen. So wird
   sichtbar, wozu der Kommutator nötig ist.
 - **Bewegung:** Anhalten/Weiter, Zeitlupe, Anstoßen (z. B. aus dem Totpunkt), Zurücksetzen.

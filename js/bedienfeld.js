@@ -28,7 +28,7 @@ export function refresh() {
   }
   $('modeStatus').textContent = state.mode === 'kommutator'
     ? 'Der Kommutator (Stromwender) polt den Strom in der Schleife bei jeder halben Umdrehung um.'
-    : 'Schleifringe: Der Strom in der Schleife behält immer dieselbe Richtung.';
+    : 'Ohne Kommutator (Schleifringe): Der Strom in der Schleife behält immer dieselbe Richtung.';
   const play = $('playBtn');
   play.textContent = state.playing ? 'Anhalten' : 'Weiter';
   play.classList.toggle('on', state.playing);
