@@ -11,7 +11,7 @@ export const state = {
   mode: 'schleifringe',           // 'kommutator' oder 'schleifringe' (Start: ohne Kommutator)
   commutatorOn: true,             // Kommutator bzw. Schleifringe auf der Welle (sonst abgenommen)
   playing: true,
-  slowMotion: false,
+  slowMotion: true,               // Zeitlupe beim Start aktiv
   // Bewegung der Schleife: Winkel der Leiterseite A gegen die Waagrechte (gegen den
   // Uhrzeigersinn, Blick von vorne) und Winkelgeschwindigkeit
   phi: START_ANGLE,

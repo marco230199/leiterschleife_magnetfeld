@@ -6,7 +6,6 @@ import { state } from './state.js';
 import { sideCurrents } from './physik.js';
 import { formatNumber } from './hilfen.js';
 import { busy, removePart, attachPart } from './abnehmen.js';
-import { sketchStatus } from './schaltskizze.js';
 
 const $ = id => document.getElementById(id);
 const deg = rad => Math.round(rad * 180 / Math.PI) % 360;
@@ -42,7 +41,6 @@ export function refresh() {
 export function updateLive() {
   $('angleSlider').value = deg(state.phi);
   $('angleOut').textContent = `${deg(state.phi)}°`;
-  $('sketchStatus').textContent = sketchStatus();
   $('motionStatus').textContent = motionText();
   $('motionStatus').classList.toggle('warn', motionWarn());
   refreshPart();
@@ -61,16 +59,6 @@ function refreshPart() {
   const comm = $('commBtn');
   comm.textContent = `${name} ${state.commutatorOn ? 'abnehmen' : 'aufsetzen'}`;
   comm.disabled = moving;
-  let text;
-  if (moving) text = 'Umbau läuft …';
-  else if (!state.commutatorOn) {
-    text = `${name} abgenommen: Die Bürsten berühren nichts, in der Schleife fließt kein Strom. So ist die Leiterschleife gut zu sehen. Zum Umschalten erst wieder aufsetzen.`;
-  } else {
-    text = state.mode === 'kommutator'
-      ? 'Der Kommutator (Stromwender) polt den Strom in der Schleife bei jeder halben Umdrehung um.'
-      : 'Ohne Kommutator (Schleifringe): Der Strom in der Schleife behält immer dieselbe Richtung.';
-  }
-  if ($('modeStatus').textContent !== text) $('modeStatus').textContent = text;
 }
 
 function motionWarn() {

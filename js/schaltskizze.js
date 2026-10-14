@@ -226,20 +226,3 @@ export function drawSketch() {
     }
   }
 }
-
-/** Kurzer Text zum Kontakt der Bürsten */
-export function sketchStatus() {
-  const i = sideCurrents(state.phi, state);
-  if (i.removed) {
-    return `${state.mode === 'kommutator' ? 'Kommutator' : 'Schleifringe'} abgenommen: Die Bürsten berühren nichts, der Stromkreis ist offen.`;
-  }
-  if (!state.powerOn) return 'Schalter offen: Es fließt kein Strom.';
-  if (state.current === 0) return 'Die Stromstärke ist null.';
-  if (state.mode === 'schleifringe') {
-    return 'Ohne Kommutator: Jede Bürste berührt immer denselben Schleifring. Der Strom in der Schleife wird nie umgepolt.';
-  }
-  if (i.gap) return 'Die Bürsten liegen auf den Lücken: Der Stromkreis ist kurz unterbrochen. Die Schleife dreht durch ihren Schwung weiter.';
-  const left = i.rightBrush === 'A' ? 'türkisen' : 'goldenen';
-  const right = i.rightBrush === 'A' ? 'goldenen' : 'türkisen';
-  return `Linke Bürste an der ${left} Hälfte, rechte Bürste an der ${right} Hälfte.`;
-}
