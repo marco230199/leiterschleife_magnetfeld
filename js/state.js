@@ -8,7 +8,7 @@ export const state = {
   current: RANGES.current.start,  // Stromstärke in A
   polarity: 1,                    // +1: Pluspol an der linken Bürste
   magnet: 1,                      // +1: Nordpol links (Feld zeigt nach rechts), −1: umgedreht
-  mode: 'kommutator',             // 'kommutator' oder 'schleifringe'
+  mode: 'schleifringe',           // 'kommutator' oder 'schleifringe' (Start: ohne Kommutator)
   commutatorOn: true,             // Kommutator bzw. Schleifringe auf der Welle (sonst abgenommen)
   playing: true,
   slowMotion: false,
@@ -18,8 +18,8 @@ export const state = {
   omega: 0,
   // Anzeigen
   showField: false,               // Feldlinien erst auf Wunsch
-  showCurrent: true,
-  showForces: true,
+  showCurrent: false,             // Stromrichtung erst auf Wunsch
+  showForces: false,              // Lorentzkraft erst auf Wunsch
   showSketch: true,
   sketchLarge: false,             // Schaltskizze vergrößert
 };
