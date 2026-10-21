@@ -15,6 +15,10 @@ leuchtet bei eingeschaltetem Strom, und „Polung umkehren“ steckt die Kabel a
 ## Funktionen
 
 - **Stromkreis:** Strom ein/aus (Schalter in der Schaltskizze), Stromstärke 0–5 A, Polung umkehren
+- **Stromfluss zeigen:** gelbe Punkte wandern (technische Stromrichtung) vom Pluspol des Netzgeräts
+  durch Kabel, Schleifkontakt (Bürste), Schleifring bzw. Kommutatorhälfte und die Leiterschleife zurück
+  zum Minuspol – umso schneller, je größer die Stromstärke. Fließt kein Strom (aus, Lücke am
+  Kommutator, Teil abgenommen), verschwinden die Punkte.
 - **Hufeisenmagnet umdrehen** (N ↔ S)
 - **Stromzuführung:** Kommutator oder **„Ohne Kommutator“** (Schleifringe) zum Vergleich. Mit Schleifringen wird der
   Strom nie umgepolt: Die Schleife pendelt nur hin und her und bleibt senkrecht stehen. So wird
@@ -77,9 +81,36 @@ leiterschleife-kommutator/
 │   ├── schaltskizze.js # 2D-Schaltskizze im Blick entlang der Achse
 │   ├── bedienfeld.js   # Regler, Knöpfe, Statusanzeigen
 │   ├── hilfen.js       # Hilfsfunktionen
-│   └── materialien.js  # Materialien und Farben
+│   ├── materialien.js  # Materialien und Farben
+│   ├── stromweg.js     # Stromfluss durch den ganzen Stromkreis (auch im Erklärvideo)
+│   └── video/          # Erklärvideo (siehe unten)
+├── video.html          # Erklärvideo: Seite ohne Bedienfeld, 1920 × 1080
+├── css/video.css
+├── video/texte.json    # Sprechertext des Erklärvideos (Abschnitte)
 ├── tests/physik.test.mjs
 └── package.json
+```
+
+## Erklärvideo
+
+`video.html` spielt ein Erklärvideo (ca. 3 min, 10. Jahrgangsstufe) mit der Simulation ab:
+Drehbewegung mit der Drei-Finger-Regel, Abbremsen, Totpunkt, Einbau des Kommutators, volle Umdrehung
+und Umpolen im Totpunkt. Die normale Simulation (`index.html`) bleibt davon unberührt; das Video nutzt
+dieselben Bausteine (3D-Aufbau, Physik, Schaltskizze, Netzgerät).
+
+- Vorschau: `video.html` über den Webserver öffnen (Echtzeit, ohne Ton, Sprechdauer geschätzt);
+  `video.html?variante=b` ohne 3D-Hand (dort wird beim Schnitt ein Manim-Teil eingesetzt).
+- Aufnahme mit Ton: `videos/physik/leiterschleife_kommutator/` (Ordner Lehramt), siehe README dort.
+
+```text
+js/video/
+├── video.js          # Start, Bild für Bild rechnen, Schnittstelle für die Aufnahme (window.video)
+├── ablauf.js         # Videozeit: warte(), bis(), animiere() – läuft nur Bild für Bild weiter
+├── regie.js          # Ablauf der Szenen: Sprechertext und Aktionen in der Simulation
+├── kamera.js         # Kameraansichten, Fahrten und Schwenks
+├── hand.js           # rechte Hand für die Drei-Finger-Regel (3D)
+├── einblendungen.js  # Beschriftungen, Bogenpfeile, Linie im Totpunkt, Untertitel
+└── umbau.js          # Schleifringe ab, Kommutator vom Sockel auf die Welle
 ```
 
 ## Tests

@@ -113,6 +113,9 @@ function buildCables() {
   }
 }
 
+/** Kabelverlauf zum Schleifkontakt links (side −1) bzw. rechts (+1), vom Netzgerät aus (für das Erklärvideo) */
+export const cableCurve = side => cables[side < 0 ? 0 : 1]?.geometry.parameters.path;
+
 // ---------------- Abgleich mit dem Zustand (jedes Bild)
 export function syncSupply() {
   const key = `${state.mode}|${state.polarity}`;

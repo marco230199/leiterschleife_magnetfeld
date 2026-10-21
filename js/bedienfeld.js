@@ -17,6 +17,9 @@ export function refresh() {
   power.setAttribute('aria-pressed', String(state.powerOn));
   $('currentSlider').value = state.current;
   $('currentOut').textContent = `${formatNumber(state.current, 1)} A`;
+  const circuit = $('circuitBtn');
+  circuit.textContent = state.showCircuit ? 'Stromfluss ausblenden' : 'Stromfluss zeigen';
+  circuit.setAttribute('aria-pressed', String(state.showCircuit));
   $('polarityStatus').textContent = state.polarity > 0 ? 'Pluspol an der linken Bürste' : 'Pluspol an der rechten Bürste';
   $('magnetStatus').textContent = state.magnet > 0
     ? 'Nordpol links: Das Feld zeigt nach rechts.'
@@ -107,6 +110,7 @@ export function initUi() {
   }
   $('powerBtn').addEventListener('click', () => { state.powerOn = !state.powerOn; refresh(); });
   $('polarityBtn').addEventListener('click', () => { state.polarity *= -1; refresh(); });
+  $('circuitBtn').addEventListener('click', () => { state.showCircuit = !state.showCircuit; refresh(); });
   $('magnetBtn').addEventListener('click', () => { state.magnet *= -1; refresh(); });
   for (const button of document.querySelectorAll('[data-mode]')) {
     button.addEventListener('click', () => { state.mode = button.dataset.mode; refresh(); });

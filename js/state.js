@@ -20,6 +20,7 @@ export const state = {
   showField: false,               // Feldlinien erst auf Wunsch
   showCurrent: false,             // Stromrichtung erst auf Wunsch
   showForces: false,              // Lorentzkraft erst auf Wunsch
+  showCircuit: false,             // Stromfluss durch den ganzen Stromkreis (wandernde Punkte)
   showSketch: true,
   sketchLarge: false,             // Schaltskizze vergrößert
 };

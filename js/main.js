@@ -10,6 +10,7 @@ import { drawSketch } from './schaltskizze.js';
 import { initUi, refresh, updateLive } from './bedienfeld.js';
 import { state } from './state.js';
 import { step } from './physik.js';
+import { stromwegDeckkraft, stromwegAktualisieren } from './stromweg.js';
 
 initUi();
 refresh();
@@ -26,6 +27,8 @@ renderer.setAnimationLoop(() => {
   if (state.playing && !busy()) step(state, dt * factor);   // während des Abnehmens/Aufsetzens ruht die Physik
   syncApparatus(state.playing ? dt * factor : 0);
   syncSupply();
+  stromwegDeckkraft(state.showCircuit ? 1 : 0);
+  stromwegAktualisieren(dt);                           // Stromfluss in Echtzeit, auch in der Zeitlupe
   if (state.showSketch) drawSketch();
   textTimer += dt;
   if (textTimer > 0.1) { updateLive(); textTimer = 0; }   // Texte nicht in jedem Bild neu setzen

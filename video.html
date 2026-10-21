@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leiterschleife im Magnetfeld – Erklärvideo</title>
+  <link rel="stylesheet" href="css/video.css" />
+</head>
+<body>
+  <!-- Erklärvideo: Ablauf nach js/video/regie.js, Sprechertext in video/texte.json.
+       Im Browser geöffnet läuft das Video als Vorschau (ohne Ton);
+       aufgenommen wird es mit videos/physik/leiterschleife_kommutator/aufnahme.mjs. -->
+  <div id="scene"></div>
+  <svg id="linien"></svg>
+  <div id="beschriftungen"></div>
+
+  <section class="sketch" id="sketch">
+    <h2>Schaltskizze <span>(Blick von vorne)</span></h2>
+    <canvas id="sketchCanvas"></canvas>
+  </section>
+
+  <div class="kapitel" id="kapitel"></div>
+  <div class="regelkasten" id="regelkasten">
+    <h3>Drei-Finger-Regel (rechte Hand)</h3>
+    <p data-finger="daumen"><b class="i">Daumen</b> → Stromrichtung <i>I</i></p>
+    <p data-finger="zeige"><b class="b">Zeigefinger</b> → Magnetfeld <i>B</i></p>
+    <p data-finger="mittel"><b class="f">Mittelfinger</b> → Kraft <i>F</i></p>
+  </div>
+  <div class="untertitel" id="untertitel"></div>
+
+  <div class="titelkarte" id="titelkarte">
+    <h1>Leiterschleife im Magnetfeld</h1>
+    <p>Wozu braucht man den Kommutator?</p>
+  </div>
+  <div class="titelkarte merke" id="schlusskarte">
+    <h1>Merke</h1>
+    <p>Ohne Kommutator pendelt die Leiterschleife nur hin und her und bleibt im Totpunkt stehen.</p>
+    <p>Der <b>Kommutator</b> polt den Strom bei jeder halben Umdrehung um. Dadurch kehren sich die Kräfte um
+      und treiben die Schleife immer in dieselbe Richtung an: Sie dreht sich dauerhaft.</p>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="js/video/video.js"></script>
+</body>
+</html>
